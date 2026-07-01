@@ -1,0 +1,674 @@
+/* layout.css — structural layout: header/main/footer, sections, grid, and spacing rhythm.
+   Loaded last, after tokens.css and base.css. Section blocks are defined here as they are
+   built out; everything below consumes the design tokens from tokens.css. Motion stays on the
+   compositor (transform/opacity), and base.css already neutralizes it under
+   prefers-reduced-motion. */
+
+/* ============================================================
+   Local constants — layout.css only; not global design tokens.
+   ============================================================ */
+:root {
+  --header-z:      100;                 /* above page content, below the film grain overlay */
+  --header-height: 4rem;                /* resting bar height; grows the sticky region */
+  --nav-pad-x:     clamp(var(--space-md), 4vw, var(--space-2xl)); /* gutter that tracks viewport */
+}
+
+/* ============================================================
+   Site header — sticky, translucent, blurred.
+   Sits on the near-black canvas as a raised glass bar. main.js (t12)
+   toggles two state classes that this file styles:
+     .is-scrolled  → firmer background + shadow once the page moves
+     .is-hidden    → slides the bar out of view on scroll-down
+   Only transform/opacity are animated, so hide/show stays compositor-side.
+   ============================================================ */
+.site-header {
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  z-index: var(--header-z);
+
+  /* Translucent take on the "raised region / sticky header" surface token. */
+  background-color: color-mix(in oklab, var(--color-bg-elevated) 78%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  border-bottom: 1px solid transparent;
+
+  /* Slide (transform) for hide/show; fade (opacity) on the way out. */
+  transition:
+    transform var(--duration-normal) var(--ease-standard),
+    opacity var(--duration-normal) var(--ease-standard);
+  will-change: transform;
+}
+
+/* Past the top: commit to an opaque-enough bar with a hairline + lift. */
+.site-header.is-scrolled {
+  background-color: color-mix(in oklab, var(--color-bg-elevated) 92%, transparent);
+  border-bottom-color: var(--color-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* Scrolling down: tuck the bar away. main.js removes this on scroll-up. */
+.site-header.is-hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* ============================================================
+   Nav bar — brand on the left, links + language toggle grouped on
+   the right. The brand's auto end-margin eats the free space, so the
+   links and toggle (direct flex children) stay clustered at the right
+   with only the column gap between them. Constrained to the content
+   measure and centered. Wraps to two rows on narrow viewports
+   (see the breakpoint below).
+   ============================================================ */
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-lg);
+
+  max-width: var(--content-max);
+  min-height: var(--header-height);
+  margin-inline: auto;
+  padding-block: var(--space-sm);
+  padding-inline: var(--nav-pad-x);
+}
+
+/* ============================================================
+   Brand wordmark — reads as text, not an accent link. A short
+   accent underline grows from the left on hover/focus. The auto
+   margin pushes the rest of the bar to the right edge.
+   ============================================================ */
+.nav__brand {
+  position: relative;
+  margin-inline-end: auto;
+  color: var(--color-text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  white-space: nowrap;
+  /* Override base.css's accent color + opacity-only link transition. */
+  opacity: 1;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.nav__brand::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.2em;
+  width: 1.5rem;
+  height: 2px;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-pill);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.nav__brand:hover,
+.nav__brand:focus-visible {
+  color: var(--color-text);
+  text-decoration: none;
+  opacity: 1;
+}
+
+.nav__brand:hover::after,
+.nav__brand:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.nav__brand:active {
+  opacity: 0.85;
+}
+
+/* ============================================================
+   Section links — horizontal list, muted until interacted with.
+   The base ul gets reset (base.css indents lists); each link has an
+   animated underline (scaleX) for hover/focus and a persistent
+   accent state for the current section (.is-active / aria-current).
+   ============================================================ */
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: clamp(var(--space-md), 2.5vw, var(--space-xl));
+
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav__link {
+  position: relative;
+  display: inline-block;
+  padding-block: var(--space-2xs);
+
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-normal);
+  white-space: nowrap;
+  /* Override base.css link defaults (accent color, opacity-only transition). */
+  opacity: 1;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+/* Underline that wipes in from the left and parks under the active link. */
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-pill);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.nav__link:hover,
+.nav__link:focus-visible {
+  color: var(--color-text);
+  text-decoration: none;
+  opacity: 1;
+}
+
+.nav__link:hover::after,
+.nav__link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.nav__link:active {
+  color: var(--color-accent-strong);
+  opacity: 0.85;
+}
+
+/* Current section — set by main.js (t12) as either class or aria-current. */
+.nav__link.is-active,
+.nav__link[aria-current="page"] {
+  color: var(--color-text);
+}
+
+.nav__link.is-active::after,
+.nav__link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+/* ============================================================
+   Language toggle — a compact pill holding two segments (EN / 中).
+   The whole control is one button; main.js moves .is-active between
+   the segments as the locale changes. Hover lifts, active presses,
+   focus-visible inherits the accent ring from base.css.
+   ============================================================ */
+.nav__lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+
+  padding: var(--space-2xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: color-mix(in oklab, var(--color-surface) 60%, transparent);
+
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard);
+}
+
+.nav__lang-toggle:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
+.nav__lang-toggle:active {
+  transform: translateY(0);
+  opacity: 0.9;
+}
+
+/* Each language label. The inactive one stays subtle; the active one
+   lights up with the accent so the current locale is unmistakable. */
+.nav__lang-option {
+  padding-inline: var(--space-2xs);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-subtle);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+.nav__lang-option.is-active {
+  color: var(--color-accent);
+  font-weight: var(--weight-semibold);
+}
+
+/* Hairline separator between the two segments. */
+.nav__lang-sep {
+  color: var(--color-border-strong);
+  font-weight: var(--weight-regular);
+}
+
+/* ============================================================
+   Responsive — when the bar gets tight, drop the section links onto
+   their own full-width row beneath the brand + toggle. No JS and no
+   hamburger needed: the brand's auto margin keeps the toggle hard
+   against the right on row 1, while the links (forced to a 100% basis)
+   wrap to row 2 and self-center.
+   ============================================================ */
+@media (max-width: 40rem) {
+  .nav {
+    /* Brand (row 1, left) · toggle (row 1, right) · links (row 2, full width). */
+    row-gap: var(--space-sm);
+  }
+
+  .nav__brand {
+    order: 1;
+  }
+
+  .nav__lang-toggle {
+    order: 2;
+  }
+
+  .nav__links {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+    gap: clamp(var(--space-md), 6vw, var(--space-xl));
+  }
+}
+
+/* ============================================================
+   Hero — opening band. Content is still a placeholder (just the
+   heading), so this only establishes the shared section shell:
+   a centered content column with the standard gutter and vertical
+   rhythm, so the heading lines up with the sections below instead
+   of sitting flush against the viewport edge on any breakpoint.
+   ============================================================ */
+#hero {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-block: var(--space-section);
+  padding-inline: var(--space-gutter);
+}
+
+/* Hero wordmark scaled up so the opening band carries real presence. Its own
+   fluid clamp (36px @320 → 64px @1440) is capped below --text-display so the
+   single unbreakable string "fono.tech.llc" never overflows a 320px phone,
+   yet still reads as a hero on desktop. */
+#hero-heading {
+  font-size: clamp(2.25rem, 1.6rem + 3.2vw, 4rem);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* ============================================================
+   About — editorial one-sentence positioning.
+
+   Composition is deliberately asymmetric rather than a centered,
+   uniformly padded box:
+     • a small lettered KICKER (the section name, demoted) hangs up top;
+     • an oversized LEAD carries the whole positioning statement;
+     • a quiet NOTE trails below, indented to break the left edge.
+   Padding is intentionally uneven — a tall top, a shorter foot, and a
+   left indent the text leans into — so the block breathes top-down and
+   reads as a column set on the page, not a slab filling its width.
+   ============================================================ */
+#about {
+  /* Non-uniform padding. Logical order: block-start inline-end block-end inline-start.
+     Top is the most generous, the foot is tighter, and the inline sides differ so
+     the content hangs off the left margin instead of sitting dead-center. */
+  padding: var(--space-4xl) var(--space-xl) var(--space-3xl) var(--space-2xl);
+}
+
+.about__inner {
+  /* Hold a comfortable measure but do NOT center it — margin-right:auto lets the
+     free space fall to the right, leaving editorial whitespace beside the column. */
+  max-width: 52rem;
+  margin-inline: 0 auto;
+}
+
+/* Kicker: the heading is inverted into a small, lettered label so the statement,
+   not the section name, owns the visual weight. A short accent rule trails it for
+   depth and to lead the eye into the lead. */
+.about__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-2xl);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.about__label::after {
+  content: "";
+  flex: 1 1 auto;
+  max-width: 9rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-border-strong), transparent);
+}
+
+/* Lead: the positioning statement. Oversized against the kicker for hard scale
+   contrast, set on a narrow measure so it stacks into a tall editorial column,
+   with a hanging accent rule (pull-quote device) for semantic color and layering. */
+.about__lead {
+  max-width: 34rem;
+  margin-bottom: var(--space-2xl);
+  padding-left: var(--space-lg);
+  border-left: 2px solid var(--color-accent);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+  text-wrap: balance;
+}
+
+/* Note: a quiet supporting line, indented further than the lead to stagger the
+   left edge and keep the vertical rhythm from feeling like a stacked block. */
+.about__note {
+  max-width: var(--measure-max);
+  margin-inline-start: calc(var(--space-2xl) + var(--space-lg));
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--color-text-muted);
+}
+
+/* On narrow screens collapse the asymmetry: even side padding and a flush left
+   edge keep the column readable without horizontal crowding. */
+@media (max-width: 40rem) {
+  #about {
+    padding: var(--space-3xl) var(--space-lg) var(--space-2xl) var(--space-lg);
+  }
+
+  .about__note {
+    margin-inline-start: var(--space-lg);
+  }
+}
+
+/* ============================================================
+   Services — centered section + responsive card grid
+   The grid is intrinsically responsive: auto-fit tracks with a
+   minmax floor wrap from 1 → 2 → 3 columns as width allows,
+   so no breakpoint media queries are needed. The min(100%, …)
+   floor keeps a single card from overflowing narrow phones.
+   ============================================================ */
+#services {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-block: var(--space-section);
+  padding-inline: var(--space-gutter);
+}
+
+.services__intro {
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-2xl);
+  max-width: var(--measure-max);
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+}
+
+.services__grid {
+  display: grid;
+  /* Intrinsically responsive: auto-fit tracks with a fluid floor wrap the
+     seven cards 1 → 2 → 3 columns as width allows, so no per-device media
+     query can drift out of sync with the content. Column counts verified
+     at the target breakpoints:
+       320 / 375   → 1 column
+       768         → 2 columns
+       1024 / 1440 → 3 columns  (7 cards lay out 3 + 3 + 1)
+     The min(100%, …) floor keeps a single card from overflowing a 320px
+     phone; the 17rem track floor blocks a 4th column from ever appearing
+     within the 72rem content cap (which would squeeze cards too narrow). */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  /* Gutter between cards grows with the viewport (16px → 32px). */
+  gap: clamp(var(--space-md), 0.5rem + 1.6vw, var(--space-xl));
+  /* Reset the <ul> list styling — this is a layout grid, not a bullet list. */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ============================================================
+   Service card — raised surface with an accent halo on hover.
+   The static border stays neutral; a pseudo-element layers an
+   accent ring + outer glow that fades in via opacity (kept on
+   the compositor). Only transform + opacity animate, so motion
+   stays cheap; focus-within mirrors hover for keyboard users.
+   ============================================================ */
+.service-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+
+/* Accent description ring + glow, revealed on interaction. */
+.service-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow:
+    inset 0 0 0 1px var(--color-accent),
+    0 0 28px var(--brand-accent-soft);
+  transition: opacity var(--duration-normal) var(--ease-standard);
+}
+
+.service-card:hover,
+.service-card:focus-within {
+  transform: translateY(-4px);
+}
+
+.service-card:hover::after,
+.service-card:focus-within::after {
+  opacity: 1;
+}
+
+.service-card__index {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-accent);
+}
+
+.service-card__title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.service-card__desc {
+  /* Cards constrain their own width; drop the global prose measure cap. */
+  max-width: none;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ============================================================
+   Approach — placeholder band. Reuses the shared section shell
+   (centered column, standard gutter + rhythm) so its heading
+   aligns with Services/Contact and keeps a gutter on every
+   breakpoint instead of sitting flush to the edge.
+   ============================================================ */
+#approach {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-block: var(--space-section);
+  padding-inline: var(--space-gutter);
+}
+
+/* ============================================================
+   Contact — the closing call to action.
+   An eyebrow, one oversized mailto link, and a short line of
+   support copy, centered in the content column. The CTA carries
+   the page's largest type for a deliberate scale jump from the
+   surrounding sections (hierarchy through contrast, not weight).
+   ============================================================ */
+#contact {
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-block: var(--space-section);
+  padding-inline: var(--space-gutter);
+  text-align: center;
+}
+
+.contact__eyebrow {
+  /* Small-caps label that sets up the headline below it. */
+  max-width: none;            /* override base p measure so it can center */
+  margin-inline: auto;
+  margin-bottom: var(--space-md);
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.contact__cta-line {
+  /* The heading element only positions the link — its own type
+     scale is irrelevant; the anchor inside owns the display size. */
+  margin-bottom: var(--space-lg);
+}
+
+.contact__cta {
+  display: inline-block;
+  position: relative;
+  max-width: 18ch;            /* let long copy wrap into a tight stack */
+  color: var(--color-text);
+  font-size: var(--text-display);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+  text-wrap: balance;
+}
+
+/* Underline reveal — an absolutely-positioned bar scaled on the
+   x-axis. Only transform animates, so the motion stays on the
+   compositor (per the project's animation constraints). */
+.contact__cta::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.04em;
+  height: 0.06em;
+  background-color: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.contact__cta:hover,
+.contact__cta:active {
+  /* Keep the large CTA fully opaque — the underline carries the
+     feedback, overriding base.css's link opacity dimming. */
+  color: var(--color-accent);
+  opacity: 1;
+  text-decoration: none;
+}
+
+.contact__cta:hover::after,
+.contact__cta:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.contact__intro {
+  margin-inline: auto;        /* center within the measure cap */
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+}
+
+/* ============================================================
+   Footer — brand, location, contact email, and a dated
+   copyright line. A hairline divider lifts it off the page;
+   the inner row spreads brand and meta apart, then wraps the
+   copyright onto its own full-width line below.
+   ============================================================ */
+footer {
+  border-top: 1px solid var(--color-border);
+  padding-block: var(--space-2xl);
+  padding-inline: var(--space-gutter);
+}
+
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-xl);
+  max-width: var(--content-max);
+  margin-inline: auto;
+}
+
+.footer__brand {
+  max-width: none;
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.footer__meta {
+  /* <address> defaults to italic — reset it for plain meta text. */
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-lg);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-style: normal;
+}
+
+.footer__copyright {
+  flex-basis: 100%;           /* always drops to its own line */
+  max-width: none;
+  margin: 0;
+  color: var(--color-text-subtle);
+  font-size: var(--text-xs);
+}
+
+/* ============================================================
+   Touch targets — on phones (narrow viewports) and any
+   coarse-pointer device, grow the small nav controls and the
+   footer email to a comfortable ≥44px tap height. Resting sizes
+   stay tighter for desktop mouse pointers. The visible styling is
+   unchanged; only the tappable box grows, with the label centered.
+   ============================================================ */
+@media (max-width: 40rem), (pointer: coarse) {
+  .nav__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .nav__lang-toggle {
+    min-height: 44px;
+  }
+
+  .footer__email {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}

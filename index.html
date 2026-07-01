@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="fono.tech.llc — company website." />
+  <title>fono.tech.llc</title>
+
+  <!-- Styles: load order matters — tokens (variables) → base (resets/elements) → layout (structure) -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+
+  <!-- Scripts: deferred so they run after the document is parsed, in source order -->
+  <script defer src="js/i18n.js"></script>
+  <script defer src="js/main.js"></script>
+</head>
+<body>
+  <!--
+    Sticky site header. The scroll-hide/show behavior and active-link highlight
+    are wired up in main.js (task t12); this markup only exposes the hooks they
+    need: #site-header for the header element, .nav__link[href="#…"] for the
+    section links, and #lang-toggle for the language switch.
+
+    i18n: every translatable string is bound via data-i18n / data-i18n-attr and
+    carries an English default (DEFAULT_LOCALE) inline, so the page reads
+    correctly before main.js runs. The EN / 中 endonyms on the toggle are
+    intentionally NOT translated — like the brand name, a language label is
+    always shown in its own script.
+  -->
+  <header class="site-header" id="site-header">
+    <nav class="nav" aria-label="Main navigation" data-i18n-attr="aria-label:nav.aria">
+      <a class="nav__brand" href="#hero" data-i18n="nav.brand">fono.tech.llc</a>
+
+      <ul class="nav__links">
+        <li><a class="nav__link" href="#about" data-i18n="nav.about">About</a></li>
+        <li><a class="nav__link" href="#services" data-i18n="nav.services">Services</a></li>
+        <li><a class="nav__link" href="#approach" data-i18n="nav.approach">Approach</a></li>
+        <li><a class="nav__link" href="#contact" data-i18n="nav.contact">Contact</a></li>
+      </ul>
+
+      <!--
+        Language toggle (中 / EN). A single button is the switch; main.js
+        flips the active locale and moves the .is-active highlight between the
+        two segments. aria-label is translated; the segment labels are not.
+      -->
+      <button
+        type="button"
+        class="nav__lang-toggle"
+        id="lang-toggle"
+        data-i18n-attr="aria-label:nav.langToggle"
+        aria-label="Switch language"
+      >
+        <span class="nav__lang-option is-active" data-lang="en">EN</span>
+        <span class="nav__lang-sep" aria-hidden="true">/</span>
+        <span class="nav__lang-option" data-lang="zh">中</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="hero" aria-labelledby="hero-heading">
+      <h1 id="hero-heading">fono.tech.llc</h1>
+      <!-- Hero content placeholder -->
+    </section>
+
+    <section id="about" aria-labelledby="about-heading">
+      <div class="about__inner">
+        <h2 id="about-heading" class="about__label" data-i18n="about.title">About</h2>
+        <p class="about__lead" data-i18n="about.lead">fono.tech.llc is a technology consulting firm, registered in Washington State, USA — connecting technology and products between China and the United States.</p>
+        <p class="about__note" data-i18n="about.body">We work across both markets so engineering, products, and partnerships can cross the bridge with less friction.</p>
+      </div>
+    </section>
+
+    <section id="services" aria-labelledby="services-heading">
+      <h2 id="services-heading" data-i18n="services.title">Services</h2>
+      <p class="services__intro" data-i18n="services.intro">
+        Seven focused ways we help teams design, build, scale, and ship better software.
+      </p>
+
+      <!-- 7 service cards. Each card carries its English copy inline as the default;
+           main.js swaps textContent via the data-i18n keys when the locale changes.
+           The leading index is decorative (aria-hidden) and stays the same in any language. -->
+      <ul class="services__grid" role="list">
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">01</span>
+          <h3 class="service-card__title" data-i18n="services.aiConsulting.title">AI Implementation Consulting</h3>
+          <p class="service-card__desc" data-i18n="services.aiConsulting.desc">
+            From use-case selection to production rollout — putting LLMs, RAG, and agents to work where they actually move the needle.
+          </p>
+        </li>
+
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">02</span>
+          <h3 class="service-card__title" data-i18n="services.cloudMigration.title">Cloud Architecture &amp; Migration</h3>
+          <p class="service-card__desc" data-i18n="services.cloudMigration.desc">
+            Resilient cloud architecture and zero-downtime migrations to AWS, GCP, or Azure, with cost and reliability built in.
+          </p>
+        </li>
+
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">03</span>
+          <h3 class="service-card__title" data-i18n="services.distributed.title">High-Concurrency &amp; Distributed Systems</h3>
+          <p class="service-card__desc" data-i18n="services.distributed.desc">
+            Architecture reviews and hands-on tuning for systems that must stay fast and correct under heavy, spiky load.
+          </p>
+        </li>
+
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">04</span>
+          <h3 class="service-card__title" data-i18n="services.fractionalCto.title">MVP &amp; Fractional CTO</h3>
+          <p class="service-card__desc" data-i18n="services.fractionalCto.desc">
+            Part-time technical leadership for founders: shape the roadmap, build the MVP, and grow the first engineering team.
+          </p>
+        </li>
+
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">05</span>
+          <h3 class="service-card__title" data-i18n="services.dataPlatform.title">Data Engineering &amp; Analytics</h3>
+          <p class="service-card__desc" data-i18n="services.dataPlatform.desc">
+            Reliable pipelines, warehouses, and decision-ready dashboards that turn raw events into metrics you can trust.
+          </p>
+        </li>
+
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">06</span>
+          <h3 class="service-card__title" data-i18n="services.crossBorder.title">Cross-border Tech Liaison</h3>
+          <p class="service-card__desc" data-i18n="services.crossBorder.desc">
+            A bilingual technical bridge between China and overseas teams — vendor vetting, communication, and delivery without the friction.
+          </p>
+        </li>
+
+        <li class="service-card">
+          <span class="service-card__index" aria-hidden="true">07</span>
+          <h3 class="service-card__title" data-i18n="services.customDev.title">Web, Mini-program &amp; App Development</h3>
+          <p class="service-card__desc" data-i18n="services.customDev.desc">
+            Custom web apps, WeChat mini-programs, and mobile apps — designed and built end to end by one accountable team.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section id="approach" aria-labelledby="approach-heading">
+      <h2 id="approach-heading">Approach</h2>
+      <!-- Approach content placeholder -->
+    </section>
+
+    <section id="contact" aria-labelledby="contact-heading">
+      <p class="contact__eyebrow" data-i18n="contact.eyebrow">Get in touch</p>
+      <h2 id="contact-heading" class="contact__cta-line">
+        <a
+          class="contact__cta"
+          href="mailto:fono.tech.llc@gmail.com?subject=Collaboration%20with%20Fono%20Tech"
+          data-i18n="contact.cta"
+        >Let’s build something great</a>
+      </h2>
+      <p class="contact__intro" data-i18n="contact.intro">
+        Have a project in mind? Tell us what you’re building and we’ll get back to you.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer__inner">
+      <p class="footer__brand" data-i18n="footer.brand">fono.tech.llc</p>
+
+      <address class="footer__meta">
+        <span class="footer__location" data-i18n="footer.location">Washington, USA</span>
+        <a
+          class="footer__email"
+          href="mailto:fono.tech.llc@gmail.com?subject=Collaboration%20with%20Fono%20Tech"
+          data-i18n="contact.email"
+        >fono.tech.llc@gmail.com</a>
+      </address>
+
+      <p class="footer__copyright">
+        © <span class="footer__year" data-year>2026</span>
+        <span data-i18n="footer.brand">fono.tech.llc</span> ·
+        <span data-i18n="footer.rights">All rights reserved.</span>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
