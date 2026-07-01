@@ -43,3 +43,18 @@ any future files or folders beginning with `_`) is served verbatim, without Jeky
    `https://<username>.github.io/<repository>/`.
 
 Subsequent pushes to the configured branch redeploy automatically.
+
+## Current publish status
+
+This `fono.tech.llc` repository is private, so the site is published from the public
+`FonoTechOfficial/about-us` repository instead:
+
+- **Live site:** <https://fonotechofficial.github.io/about-us/> (verified `200 OK` for
+  `index.html`, `css/*.css`, and `js/*.js`)
+- **Source repo:** <https://github.com/FonoTechOfficial/about-us> — `main` branch, root folder
+- **Pages config:** `source.branch=main`, `source.path=/`, `build_type=legacy`, status `built`
+  (confirmed via `gh api repos/FonoTechOfficial/about-us/pages`)
+
+To republish after future changes here, copy the deployable files (`index.html`, `.nojekyll`,
+`css/`, `js/`, `README.md` — not `acceptance/`) into a checkout of `about-us`, commit, and push
+to its `main` branch. No separate build step is required.
